@@ -3,6 +3,7 @@ import java.io.File;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -15,19 +16,27 @@ public class LocalLoginTest {
 
     @BeforeMethod
     public void setUp() {
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--window-size=1920,1080");
+
+        driver = new ChromeDriver(options);
 
         String page = new File("webpage/login.html")
                 .getAbsoluteFile()
                 .toURI()
                 .toString();
 
+        // Open the local login page
         driver.get(page);
     }
 
     @Test
     public void validLoginTest() {
+
         driver.findElement(By.id("username"))
                 .sendKeys("student");
 
@@ -42,11 +51,15 @@ public class LocalLoginTest {
 
         System.out.println("Message: " + message);
 
-        Assert.assertEquals(message, "Login Successful");
+        Assert.assertEquals(
+                message,
+                "Login Successful"
+        );
     }
 
     @Test
     public void invalidLoginTest() {
+
         driver.findElement(By.id("username"))
                 .sendKeys("wrong");
 
@@ -69,6 +82,7 @@ public class LocalLoginTest {
 
     @Test
     public void checkBackgroundColor() {
+
         String bgColor = driver.findElement(By.id("loginBox"))
                 .getCssValue("background-color");
 
@@ -80,8 +94,9 @@ public class LocalLoginTest {
         );
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void tearDown() {
+
         if (driver != null) {
             driver.quit();
         }
